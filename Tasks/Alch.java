@@ -3,7 +3,8 @@ package Tasks;
 import main.Main;
 import org.osbot.rs07.api.ui.Spells;
 import org.osbot.rs07.input.mouse.InventorySlotDestination;
-import org.osbot.rs07.utility.ConditionalSleep;
+
+import java.util.ArrayList;
 
 public class Alch extends Task {
 
@@ -11,6 +12,8 @@ public class Alch extends Task {
     private AlchMode mode;
 
     private int  alchItemID;
+
+    private int[] itemIDQueue;
 
     public Alch(Main m, AlchMode alchMode){
         super(m);
@@ -79,5 +82,28 @@ public class Alch extends Task {
     public void setAlchItemID(int i){
         getBot().log("item id set to: " + i);
         alchItemID = i;
+    }
+
+    void createItemQueue(ArrayList<Integer> itemList){
+        itemIDQueue = new int[itemList.size()];
+        for(int i = 0; i < itemIDQueue.length; i++){
+            itemIDQueue[i] = itemList.get(i);
+        }
+    }
+
+    int[] getItemIDQueue(){
+        return itemIDQueue;
+    }
+
+    private int[] getUpdatedQueue(){
+        int[] newQ = new int[itemIDQueue.length - 1];
+        for(int i = 0; i < newQ.length; i++){
+            newQ[i] = itemIDQueue[i + 1];
+        }
+        return newQ;
+    }
+
+    private void finishItemInQueue(){
+        itemIDQueue = getUpdatedQueue();
     }
 }
