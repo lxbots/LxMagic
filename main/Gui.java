@@ -73,10 +73,7 @@ public class Gui extends JFrame implements ActionListener {
             }
         } else if(e.getSource() == nextButton){
             if(taskCombo.getSelectedItem() != null) {
-                new InnerGui(main,this, taskCombo.getSelectedItem().toString());
-                taskCombo.setEnabled(false);
-                spellbookCombo.setEnabled(false);
-                nextButton.setVisible(false);
+                new AlchGui(main, this);
             }
         }
     }
