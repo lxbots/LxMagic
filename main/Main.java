@@ -25,9 +25,10 @@ public class Main extends Script {
         if(hasStarted) {
             if (currentTask != null) {
                 currentTask.runTask();
+                return random(currentTask.getRandomReturnDelay()[0], currentTask.getRandomReturnDelay()[1]);
             }
         }
-        return random(40, 100);
+        return 100;
     }
 
     Task setCurrentTask(Tasks t){
@@ -41,10 +42,10 @@ public class Main extends Script {
                 currentTask = new PlankMake(this);
                 break;
             case HighAlch:
-                currentTask = new Alch(this, Alch.AlchMode.High);
+                currentTask = new Alch(this, Alch.AlchMode.High, new int[]{250, 450});
                 break;
             case LowAlch:
-                currentTask = new Alch(this, Alch.AlchMode.Low);
+                currentTask = new Alch(this, Alch.AlchMode.Low, new int[]{250, 450});
                 break;
         }
         return currentTask;
@@ -61,7 +62,7 @@ public class Main extends Script {
     @Override
     public void onPaint(Graphics2D g) {
         super.onPaint(g);
-        g.drawString("Current Task: " + getTaskString(currentTasksEnum), 10, 40);
+        g.drawString("Current Task: " + getTaskString(currentTasksEnum), 10, 80);
     }
 
     private String getTaskString(Tasks t){
