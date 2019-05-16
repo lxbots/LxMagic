@@ -13,6 +13,7 @@ abstract class OptionsGui extends JFrame implements ActionListener {
 
     OptionsGui(Main m, Gui g){
         main = m;
+        gui = g;
     }
 
     Main getMain(){
