@@ -1,5 +1,8 @@
 package main;
 
+import Tasks.Alch;
+import Tasks.Task;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -8,9 +11,6 @@ import java.awt.event.FocusListener;
 import java.util.ArrayList;
 
 class AlchGui extends OptionsGui implements FocusListener {
-
-
-    private int[] alchIDS;
 
     private JComboBox<String> alchDropdown;
     private JTextField idText;
@@ -21,9 +21,12 @@ class AlchGui extends OptionsGui implements FocusListener {
 
     private JLabel statusText;
 
-    AlchGui(Main m, Gui g){
+    private boolean isHighAlch;
+
+    AlchGui(Main m, Gui g, boolean _isHighAlch){
         super(m, g);
         idList = new ArrayList<>();
+        isHighAlch = _isHighAlch;
         setSize(400,280);
         setLocation(g.getSize().width + 10, g.getY());
 
@@ -102,7 +105,15 @@ class AlchGui extends OptionsGui implements FocusListener {
 
     @Override
     void sendStart(){
-
+        if(isHighAlch){
+            getMain().setCurrentTask(Main.Tasks.HighAlch);
+        } else {
+            getMain().setCurrentTask(Main.Tasks.LowAlch);
+        }
+        if(getMain().getCurrentTask() instanceof Alch){
+            ((Alch) getMain().getCurrentTask()).createItemQueue(idList);
+        }
+        getMain().startBot();
     }
 
     @Override
@@ -123,7 +134,19 @@ class AlchGui extends OptionsGui implements FocusListener {
         } else if(e.getSource() == addItemButton){
             if(alchDropdown.getSelectedItem() != null){
                 if(isValidID(idText.getText())){
+                    int i = getPresetID(idText.getText());
+                    if(i == 0){
+                        i = Integer.parseInt(idText.getText());
+                    }
+                    if(!isIDAlreadyInList(i)) {
+                        idList.add(i);
+                        statusText.setText("ID #" +i +" Added to list");
+                    } else{
+                        statusText.setText("ID #" + i + " is already in the list.");
+                    }
 
+                } else{
+                    statusText.setText(idText.getText() + " is not a valid ID.");
                 }
             }
         }
@@ -140,6 +163,13 @@ class AlchGui extends OptionsGui implements FocusListener {
                 return false;
             }
         }
+    }
+
+    private boolean isIDAlreadyInList(int i){
+        for(int _i:idList){
+            if(i == _i) return true;
+        }
+        return false;
     }
 
     @Override
