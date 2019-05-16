@@ -73,7 +73,14 @@ public class Gui extends JFrame implements ActionListener {
             }
         } else if(e.getSource() == nextButton){
             if(taskCombo.getSelectedItem() != null) {
-                new AlchGui(main, this);
+                switch(taskCombo.getSelectedItem().toString()){
+                    case "Low Alchemy":
+                        new AlchGui(main, this, false);
+                        break;
+                    case "High Alchemy":
+                        new AlchGui(main, this, true);
+                        break;
+                }
             }
         }
     }
