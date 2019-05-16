@@ -2,6 +2,7 @@ package Tasks;
 
 import main.Main;
 import org.osbot.rs07.api.ui.Spells;
+import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.input.mouse.InventorySlotDestination;
 import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
@@ -18,8 +19,8 @@ public class Alch extends Task {
 
     private int[] itemIDQueue;
 
-    public Alch(Main m, AlchMode alchMode){
-        super(m);
+    public Alch(Main m, AlchMode alchMode, int[] delay){
+        super(m, delay);
         mode = alchMode;
     }
 
@@ -97,24 +98,33 @@ public class Alch extends Task {
     }
 
     private void alchItem(){
-        getBot().log("Trying to alch item...");
-        switch(mode){
-            case High:
-                break;
-            case Low:
-                break;
+        Spells.NormalSpells s = Spells.NormalSpells.HIGH_LEVEL_ALCHEMY;
+        if(mode == AlchMode.Low) {
+            s = Spells.NormalSpells.LOW_LEVEL_ALCHEMY;
+        }
+        if(getBot().getMagic().castSpell(s)) {
+            new ConditionalSleep(2000) {
+                @Override
+                public boolean condition(){
+                    return getBot().getTabs().getOpen().equals(Tab.INVENTORY);
+                }
+            }.sleep();
+        }
+        if(getBot().getMouse().click(false)) {
+            new ConditionalSleep(2000) {
+                @Override
+                public boolean condition(){
+                    return getBot().getTabs().getOpen().equals(Tab.MAGIC);
+                }
+            }.sleep();
         }
     }
 
     private void setAlchItemID(int i){
-        getBot().log("item id set to: " + i);
         alchItemID = i;
     }
 
     public void createItemQueue(ArrayList<Integer> itemList) {
-        for (int i : itemList) {
-            getBot().log(i);
-        }
         itemIDQueue = new int[itemList.size()];
         for (int i = 0; i < itemIDQueue.length; i++) {
             itemIDQueue[i] = itemList.get(i);
@@ -141,5 +151,9 @@ public class Alch extends Task {
     private void finishBot(String exitMessage){
         getBot().log(exitMessage);
         getBot().stop(false);
+    }
+
+    public void setRandomReturnDelay(){
+
     }
 }
