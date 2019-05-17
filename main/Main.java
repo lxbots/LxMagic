@@ -33,19 +33,18 @@ public class Main extends Script {
 
     Task setCurrentTask(Tasks t){
         currentTasksEnum = t;
-        log("Current task set to: " +t.toString());
         switch(t){
             case SuperglassMake:
-                currentTask = new SuperglassMake(this);
+                currentTask = new SuperglassMake(this, new int[]{200,300});
                 break;
             case PlankMake:
-                currentTask = new PlankMake(this);
+                currentTask = new PlankMake(this, new int[]{200,300});
                 break;
             case HighAlch:
                 currentTask = new Alch(this, Alch.AlchMode.High, new int[]{250, 450});
                 break;
             case LowAlch:
-                currentTask = new Alch(this, Alch.AlchMode.Low, new int[]{250, 450});
+                currentTask = new Alch(this, Alch.AlchMode.Low, new int[]{300, 500});
                 break;
         }
         return currentTask;
@@ -62,7 +61,12 @@ public class Main extends Script {
     @Override
     public void onPaint(Graphics2D g) {
         super.onPaint(g);
+        g.drawString("LxBots", 10, 40);
+        g.drawString("LxMagic v0.1", 10, 60);
         g.drawString("Current Task: " + getTaskString(currentTasksEnum), 10, 80);
+        if(currentTask != null){
+            currentTask.paintOverride(g);
+        }
     }
 
     private String getTaskString(Tasks t){
