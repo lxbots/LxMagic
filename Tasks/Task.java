@@ -28,6 +28,4 @@ public abstract class Task implements ITask{
         randomReturnDelay[1] = delay[1];
     }
 
-    public abstract void paintOverride(Graphics2D g);
-
 }
