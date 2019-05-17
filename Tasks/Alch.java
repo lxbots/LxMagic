@@ -7,6 +7,7 @@ import org.osbot.rs07.input.mouse.InventorySlotDestination;
 import org.osbot.rs07.utility.Condition;
 import org.osbot.rs07.utility.ConditionalSleep;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -19,6 +20,8 @@ public class Alch extends Task {
 
     private int[] itemIDQueue;
 
+    private int alchsCast = 0;
+
     public Alch(Main m, AlchMode alchMode, int[] delay){
         super(m, delay);
         mode = alchMode;
@@ -26,21 +29,15 @@ public class Alch extends Task {
 
     @Override
     public void runTask() throws InterruptedException{
-        getBot().log("Running task...");
         if(!getBot().myPlayer().isAnimating()){
             if(canCastAlch()){
-                getBot().log("Can cast alch");
                 if(hasCurrentAlchingItem()){
-                    getBot().log("has current alch item");
                     if(isItemInCorrectPosition()){
-                        getBot().log("item in correct position");
                         alchItem();
                     }else{
-                        getBot().log("item in wrong position");
                         placeItemInCorrectPosition();
                     }
                 }else{
-                    getBot().log("current item not found");
                     finishItemInQueue();
                 }
             }
@@ -82,7 +79,6 @@ public class Alch extends Task {
     }
 
     private void placeItemInCorrectPosition(){
-        getBot().log("Trying to move item...");
         getBot().getMouse().continualClick(new InventorySlotDestination(getBot().getBot(), getBot().getInventory().getSlot(alchItemID)), new Condition() {
             @Override
             public boolean evaluate() {
@@ -118,6 +114,7 @@ public class Alch extends Task {
                 }
             }.sleep();
         }
+        alchsCast++;
     }
 
     private void setAlchItemID(int i){
@@ -144,16 +141,34 @@ public class Alch extends Task {
             itemIDQueue = getUpdatedQueue();
             setAlchItemID(itemIDQueue[0]);
         } else{
-            finishBot("All Alchs finished successfully");
+            finishBot("LxMagic has finished alching!\n" + alchsCast + " alchs were cast,\nfor a total of " + alchsCast * 65 + "xp");
         }
+    }
+
+    private String getPresetName(int i){
+        switch (i){
+            case 860:
+                return "Magic Longbows";
+            case 856:
+                return "Yew Longbows";
+            case 22267:
+                return "Redwood Shields";
+        }
+        return "";
+    }
+
+    public void paintOverride(Graphics2D g){
+        String s = getPresetName(alchItemID);
+        if(s.equals("")){
+            s = "ID #" + alchItemID;
+        }
+        g.drawString(String.format("Current Alch Item: %s", s), 10, 100);
+        g.drawString(String.format("Alchs Completed: %d", alchsCast), 10, 120);
+        g.drawString(String.format("Xp Earned: %d", alchsCast * 65), 10, 140);
     }
 
     private void finishBot(String exitMessage){
         getBot().log(exitMessage);
         getBot().stop(false);
-    }
-
-    public void setRandomReturnDelay(){
-
     }
 }
