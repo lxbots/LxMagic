@@ -28,6 +28,8 @@ abstract class OptionsGui extends JFrame implements ActionListener {
     public void actionPerformed(ActionEvent e) {
         if(e.getSource() == startButton){
             sendStart();
+            gui.dispose();
+            this.dispose();
         }
     }
 
