@@ -1,7 +1,6 @@
 package main;
 
 import Tasks.Alch;
-import Tasks.Task;
 
 import javax.swing.*;
 import java.awt.*;
@@ -42,7 +41,7 @@ class AlchGui extends OptionsGui implements FocusListener {
         a.add(l, c);
         c.gridx = 1;
         c.weightx = 1;
-        alchDropdown = new JComboBox<>(new String[]{"-Select Item-","Yew Longbows", "Magic Longbows", "Other"});
+        alchDropdown = new JComboBox<>(new String[]{"-Select Item-","Yew Longbows", "Magic Longbows", "Redwood Shields", "Other"});
         alchDropdown.addActionListener(this);
         a.add(alchDropdown, c);
 
@@ -118,7 +117,13 @@ class AlchGui extends OptionsGui implements FocusListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        super.actionPerformed(e);
+        if(!isIDListEmpty()) {
+            super.actionPerformed(e);
+        } else{
+            if (e.getSource().equals(startButton)) {
+                statusText.setText("Please add an ID to the list before starting.");
+            }
+        }
         if(e.getSource() == alchDropdown){
             if(alchDropdown.getSelectedItem() != null){
                 if(!alchDropdown.getSelectedItem().equals("Other")) {
@@ -150,6 +155,10 @@ class AlchGui extends OptionsGui implements FocusListener {
                 }
             }
         }
+    }
+
+    private boolean isIDListEmpty(){
+        return idList.size() == 0;
     }
 
     private boolean isValidID(String s){
