@@ -1,5 +1,6 @@
 package Tasks;
 
+import Exceptions.OutOfSuppliesException;
 import main.Main;
 import org.osbot.rs07.api.ui.Spells;
 import org.osbot.rs07.api.ui.Tab;
@@ -40,7 +41,9 @@ public class Alch extends Task {
                         placeItemInCorrectPosition();
                     }
                 }else{
-                    finishItemInQueue();
+                    try {
+                        finishItemInQueue();
+                    }catch(OutOfSuppliesException e){}
                 }
             } else{
                 setExitMessage("LxMagic is unable to cast the appropriate spell and has stopped");
@@ -111,7 +114,9 @@ public class Alch extends Task {
         }
         int j = 0;
         for(int i : itemIDQueue){
-            j += getBot().getInventory().getItem(i).getAmount();
+            if(getBot().getInventory().getItem(i) != null) {
+                j += getBot().getInventory().getItem(i).getAmount();
+            }
         }
         if(l != getBot().getInventory().getAmount(alchItemID)) {
             alchsCast++;
@@ -137,14 +142,13 @@ public class Alch extends Task {
         return newQ;
     }
 
-    private void finishItemInQueue(){
+    private void finishItemInQueue() throws OutOfSuppliesException {
         if(itemIDQueue.length > 1) {
             itemIDQueue = getUpdatedQueue();
             setAlchItemID(itemIDQueue[0]);
             placeItemInCorrectPosition();
         } else{
-            setExitMessage("LxMagic has finished alching!\n" + alchsCast + " alchs were cast,\nfor a total of " + alchsCast * 65 + "xp");
-            getBot().stop(false);
+            throw new OutOfSuppliesException(getBot(), this);
         }
     }
 
