@@ -76,6 +76,10 @@ public class Main extends Script {
         }
     }
 
+    public void botSleep(int timeoutMin, int timeoutMax) throws InterruptedException{
+        sleep(random(timeoutMin, timeoutMax));
+    }
+
     private String getTaskString(Tasks t){
         switch(t){
             case SuperglassMake:
