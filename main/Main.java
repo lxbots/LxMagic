@@ -31,6 +31,13 @@ public class Main extends Script {
         return 100;
     }
 
+    @Override
+    public void onExit(){
+        if(currentTask != null){
+            currentTask.finishBot();
+        }
+    }
+
     Task setCurrentTask(Tasks t){
         currentTasksEnum = t;
         switch(t){
@@ -44,7 +51,7 @@ public class Main extends Script {
                 currentTask = new Alch(this, Alch.AlchMode.High, new int[]{250, 450});
                 break;
             case LowAlch:
-                currentTask = new Alch(this, Alch.AlchMode.Low, new int[]{300, 500});
+                currentTask = new Alch(this, Alch.AlchMode.Low, new int[]{250, 450});
                 break;
         }
         return currentTask;
