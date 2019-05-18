@@ -1,5 +1,6 @@
 package Tasks;
 import main.Main;
+import org.osbot.rs07.utility.ConditionalSleep;
 
 public abstract class Task implements ITask{
 
@@ -34,6 +35,15 @@ public abstract class Task implements ITask{
 
     void setExitMessage(String s){
         exitMessage = s;
+    }
+
+    void sleep(int timeout, boolean returnCondition){
+        new ConditionalSleep(timeout){
+            @Override
+            public boolean condition() throws InterruptedException {
+                return returnCondition;
+            }
+        }.sleep();
     }
 
 }
