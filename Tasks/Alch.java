@@ -5,11 +5,9 @@ import org.osbot.rs07.api.ui.Spells;
 import org.osbot.rs07.api.ui.Tab;
 import org.osbot.rs07.input.mouse.InventorySlotDestination;
 import org.osbot.rs07.utility.Condition;
-import org.osbot.rs07.utility.ConditionalSleep;
 
 import java.awt.*;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class Alch extends Task {
 
@@ -21,10 +19,14 @@ public class Alch extends Task {
     private int[] itemIDQueue;
 
     private int alchsCast = 0;
+    private int alchsRemaining = 0;
 
     public Alch(Main m, AlchMode alchMode, int[] delay){
         super(m, delay);
         mode = alchMode;
+        if(!getBot().getTabs().getOpen().equals(Tab.INVENTORY)){
+            getBot().getTabs().open(Tab.INVENTORY);
+        }
     }
 
     @Override
@@ -40,6 +42,9 @@ public class Alch extends Task {
                 }else{
                     finishItemInQueue();
                 }
+            } else{
+                setExitMessage("LxMagic is unable to cast the appropriate spell and has stopped");
+                getBot().stop(false);
             }
         }
     }
@@ -51,9 +56,9 @@ public class Alch extends Task {
     private boolean canCastAlch() throws InterruptedException{
         switch(mode){
             case High:
-                return getBot().getMagic().canCast(Spells.NormalSpells.HIGH_LEVEL_ALCHEMY);
+                return getBot().getMagic().canCast(Spells.NormalSpells.HIGH_LEVEL_ALCHEMY, false);
             case Low:
-                return getBot().getMagic().canCast(Spells.NormalSpells.LOW_LEVEL_ALCHEMY);
+                return getBot().getMagic().canCast(Spells.NormalSpells.LOW_LEVEL_ALCHEMY, false);
         }
         return false;
     }
@@ -79,6 +84,9 @@ public class Alch extends Task {
     }
 
     private void placeItemInCorrectPosition(){
+        if(!getBot().getTabs().isOpen(Tab.INVENTORY)){
+            getBot().getTabs().open(Tab.INVENTORY);
+        }
         getBot().getMouse().continualClick(new InventorySlotDestination(getBot().getBot(), getBot().getInventory().getSlot(alchItemID)), new Condition() {
             @Override
             public boolean evaluate() {
@@ -86,35 +94,29 @@ public class Alch extends Task {
                 return getBot().getInventory().getSlotBoundingBox(getCorrectAlchItemSlot()).contains(getBot().getMouse().getPosition());
             }
         });
-        new ConditionalSleep(5000){
-            public boolean condition(){
-                return isItemInCorrectPosition();
-            }
-        }.sleep();
+        sleep(5000, isItemInCorrectPosition());
     }
 
     private void alchItem(){
+        long l = getBot().getInventory().getAmount(alchItemID);
         Spells.NormalSpells s = Spells.NormalSpells.HIGH_LEVEL_ALCHEMY;
         if(mode == AlchMode.Low) {
             s = Spells.NormalSpells.LOW_LEVEL_ALCHEMY;
         }
         if(getBot().getMagic().castSpell(s)) {
-            new ConditionalSleep(2000) {
-                @Override
-                public boolean condition(){
-                    return getBot().getTabs().getOpen().equals(Tab.INVENTORY);
-                }
-            }.sleep();
+            sleep(2000, getBot().getTabs().getOpen().equals(Tab.INVENTORY));
         }
         if(getBot().getMouse().click(false)) {
-            new ConditionalSleep(2000) {
-                @Override
-                public boolean condition(){
-                    return getBot().getTabs().getOpen().equals(Tab.MAGIC);
-                }
-            }.sleep();
+            sleep(2000, getBot().getTabs().getOpen().equals(Tab.MAGIC));
         }
-        alchsCast++;
+        int j = 0;
+        for(int i : itemIDQueue){
+            j += getBot().getInventory().getItem(i).getAmount();
+        }
+        if(l != getBot().getInventory().getAmount(alchItemID)) {
+            alchsCast++;
+        }
+        alchsRemaining = j;
     }
 
     private void setAlchItemID(int i){
@@ -132,7 +134,6 @@ public class Alch extends Task {
     private int[] getUpdatedQueue(){
         int[] newQ = new int[itemIDQueue.length - 1];
         System.arraycopy(itemIDQueue, 1, newQ, 0, newQ.length);
-        getBot().log(Arrays.toString(newQ));
         return newQ;
     }
 
@@ -140,8 +141,10 @@ public class Alch extends Task {
         if(itemIDQueue.length > 1) {
             itemIDQueue = getUpdatedQueue();
             setAlchItemID(itemIDQueue[0]);
+            placeItemInCorrectPosition();
         } else{
-            finishBot("LxMagic has finished alching!\n" + alchsCast + " alchs were cast,\nfor a total of " + alchsCast * 65 + "xp");
+            setExitMessage("LxMagic has finished alching!\n" + alchsCast + " alchs were cast,\nfor a total of " + alchsCast * 65 + "xp");
+            getBot().stop(false);
         }
     }
 
@@ -165,10 +168,7 @@ public class Alch extends Task {
         g.drawString(String.format("Current Alch Item: %s", s), 10, 100);
         g.drawString(String.format("Alchs Completed: %d", alchsCast), 10, 120);
         g.drawString(String.format("Xp Earned: %d", alchsCast * 65), 10, 140);
+        g.drawString(String.format("Alchs Remaining: %d", alchsRemaining), 10, 160);
     }
 
-    private void finishBot(String exitMessage){
-        getBot().log(exitMessage);
-        getBot().stop(false);
-    }
 }
