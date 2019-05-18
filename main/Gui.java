@@ -1,4 +1,6 @@
 package main;
+import Tasks.SuperglassMake;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -80,6 +82,8 @@ public class Gui extends JFrame implements ActionListener {
                     case "High Alchemy":
                         new AlchGui(main, this, true);
                         break;
+                    case "Superglass Make":
+                        new SGMGui(main, this);
                 }
             }
         }
