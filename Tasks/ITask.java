@@ -7,4 +7,5 @@ interface ITask {
     void runTask() throws InterruptedException;
 
     void paintOverride(Graphics2D g);
+
 }
